@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="UpCare MediConnect project documentation: technology stack, core features, user manual and appendix.">
+  <title>UpCare MediConnect — Project Documentation</title>
+  <style>
+    :root {
+      --bg: #f5f8fb;
+      --surface: #ffffff;
+      --surface-2: #eef5f7;
+      --text: #17232b;
+      --muted: #64757f;
+      --line: #dbe5e9;
+      --brand: #087f8c;
+      --brand-2: #0aa3a9;
+      --accent: #17b890;
+      --code: #0e2930;
+      --shadow: 0 14px 36px rgba(20, 48, 57, .08);
+      --radius: 18px;
+      --sidebar: 295px;
+    }
+
+    [data-theme="dark"] {
+      --bg: #071318;
+      --surface: #0d1d23;
+      --surface-2: #11272d;
+      --text: #e7f3f5;
+      --muted: #98adb4;
+      --line: #234047;
+      --brand: #56d5df;
+      --brand-2: #7ce3e8;
+      --accent: #62d7b2;
+      --code: #071216;
+      --shadow: 0 18px 45px rgba(0, 0, 0, .22);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 84px; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.72;
+    }
+
+    a { color: var(--brand); }
+    code, .command {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    .progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      width: 0;
+      background: linear-gradient(90deg, var(--brand), var(--accent));
+      z-index: 100;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--surface) 92%, transparent);
+      backdrop-filter: blur(14px);
+    }
+    .topbar-inner {
+      width: min(1480px, 96%);
+      margin: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      font-weight: 850;
+      text-decoration: none;
+      color: var(--text);
+      letter-spacing: -.01em;
+    }
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .button {
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 11px;
+      min-height: 38px;
+      padding: 0 13px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      text-decoration: none;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .button:hover { border-color: var(--brand); }
+
+    .hero {
+      padding: 78px 0 58px;
+      border-bottom: 1px solid var(--line);
+      background:
+        radial-gradient(circle at 82% 20%, color-mix(in srgb, var(--brand) 19%, transparent), transparent 28%),
+        radial-gradient(circle at 15% 10%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 23%),
+        var(--surface);
+    }
+    .hero-inner {
+      width: min(1180px, 92%);
+      margin: auto;
+    }
+    .eyebrow {
+      color: var(--brand);
+      text-transform: uppercase;
+      letter-spacing: .16em;
+      font-weight: 850;
+      font-size: .77rem;
+      margin-bottom: 12px;
+    }
+    h1 {
+      margin: 0;
+      max-width: 900px;
+      font-size: clamp(2.8rem, 7vw, 5.7rem);
+      line-height: .97;
+      letter-spacing: -.055em;
+    }
+    .hero-sub {
+      max-width: 820px;
+      margin: 24px 0 0;
+      color: var(--muted);
+      font-size: clamp(1.05rem, 2vw, 1.25rem);
+    }
+    .meta {
+      margin-top: 30px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .pill {
+      border: 1px solid var(--line);
+      background: var(--surface-2);
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-size: .88rem;
+      color: var(--muted);
+    }
+    .pill strong { color: var(--text); }
+
+    .layout {
+      width: min(1480px, 96%);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: var(--sidebar) minmax(0, 860px);
+      justify-content: center;
+      gap: 52px;
+      align-items: start;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 84px;
+      max-height: calc(100vh - 104px);
+      overflow: auto;
+      margin-top: 42px;
+      padding: 8px 14px 22px 0;
+      scrollbar-width: thin;
+    }
+    .sidebar-title {
+      font-weight: 850;
+      margin: 0 0 10px;
+      font-size: .87rem;
+      text-transform: uppercase;
+      letter-spacing: .11em;
+      color: var(--muted);
+    }
+    .toc-link {
+      display: block;
+      text-decoration: none;
+      color: var(--muted);
+      padding: 6px 10px;
+      border-left: 2px solid transparent;
+      border-radius: 0 8px 8px 0;
+      font-size: .91rem;
+      line-height: 1.4;
+    }
+    .toc-link.level-2 { font-weight: 800; color: var(--text); margin-top: 7px; }
+    .toc-link.level-3 { padding-left: 20px; }
+    .toc-link.level-4 { padding-left: 32px; font-size: .86rem; }
+    .toc-link:hover, .toc-link.active {
+      color: var(--brand);
+      border-left-color: var(--brand);
+      background: var(--surface-2);
+    }
+
+    main {
+      padding: 38px 0 90px;
+      min-width: 0;
+    }
+    article {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: clamp(26px, 5vw, 58px);
+    }
+
+    h2, h3, h4 {
+      color: var(--text);
+      line-height: 1.2;
+      letter-spacing: -.025em;
+      position: relative;
+    }
+    h2 {
+      margin: 66px 0 20px;
+      padding-top: 12px;
+      font-size: clamp(2rem, 4vw, 2.8rem);
+      border-top: 1px solid var(--line);
+    }
+    article > h2:first-child {
+      margin-top: 0;
+      border-top: 0;
+      padding-top: 0;
+    }
+    h3 { margin: 44px 0 16px; font-size: 1.55rem; }
+    h4 { margin: 30px 0 12px; font-size: 1.17rem; }
+    .anchor {
+      position: absolute;
+      right: 100%;
+      padding-right: 9px;
+      color: var(--muted);
+      text-decoration: none;
+      opacity: 0;
+      font-weight: 500;
+    }
+    h2:hover .anchor, h3:hover .anchor, h4:hover .anchor { opacity: 1; }
+
+    p { margin: 0 0 16px; }
+    strong { color: var(--text); }
+    .doc-list {
+      margin: 12px 0 24px;
+      padding-left: 1.45rem;
+    }
+    .doc-list li { margin: 8px 0; padding-left: .25rem; }
+    .doc-list li::marker { color: var(--brand); font-weight: 800; }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      margin: 20px 0 34px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+    table {
+      width: 100%;
+      min-width: 620px;
+      border-collapse: collapse;
+      background: var(--surface);
+    }
+    th, td {
+      padding: 13px 15px;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid var(--line);
+    }
+    th {
+      color: var(--text);
+      background: var(--surface-2);
+      font-size: .9rem;
+      letter-spacing: .01em;
+    }
+    td { color: color-mix(in srgb, var(--text) 91%, var(--muted)); }
+    tr:last-child td { border-bottom: 0; }
+    tbody tr:hover td { background: color-mix(in srgb, var(--surface-2) 58%, transparent); }
+
+    .callout {
+      padding: 16px 18px;
+      border-left: 4px solid var(--brand);
+      background: var(--surface-2);
+      border-radius: 0 12px 12px 0;
+      margin: 20px 0;
+    }
+    .warning { border-left-color: #d87832; }
+    .command {
+      background: var(--code);
+      color: #dff9fa;
+      padding: 12px 14px;
+      border-radius: 10px;
+      margin-bottom: 9px;
+      overflow-wrap: anywhere;
+    }
+
+    .footer {
+      border-top: 1px solid var(--line);
+      padding: 30px 0 42px;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+    .footer-inner {
+      width: min(1180px, 92%);
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .mobile-toc {
+      display: none;
+      margin-bottom: 20px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface);
+      padding: 12px 14px;
+    }
+    .mobile-toc summary {
+      cursor: pointer;
+      font-weight: 800;
+    }
+    .mobile-toc .toc-link { margin-top: 4px; }
+
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: minmax(0, 860px); width: min(94%, 860px); }
+      .sidebar { display: none; }
+      .mobile-toc { display: block; }
+      main { padding-top: 24px; }
+    }
+
+    @media (max-width: 620px) {
+      .brand-text { display: none; }
+      .button .label { display: none; }
+      .hero { padding-top: 58px; }
+      article { border-radius: 16px; padding: 23px 20px 42px; }
+      .anchor { display: none; }
+      h2 { margin-top: 52px; }
+    }
+
+    @media print {
+      .topbar, .sidebar, .mobile-toc, .progress { display: none !important; }
+      .hero { padding: 20px 0 30px; }
+      .layout { display: block; width: 100%; }
+      main { padding: 0; }
+      article { box-shadow: none; border: 0; padding: 0; }
+      body { background: #fff; color: #000; }
+      .table-wrap { overflow: visible; }
+      table { min-width: 0; }
+      h2, h3, h4 { break-after: avoid; }
+      table, ul, ol { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress" id="progress"></div>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#top">
+        <span class="brand-text">UpCare MediConnect Docs</span>
+      </a>
+      <div class="top-actions">
+        <a class="button" href="https://upcaremediconnect.rufpaa.org" target="_blank" rel="noopener">
+          ↗ <span class="label">Open Platform</span>
+        </a>
+        <button class="button" id="themeToggle" type="button" aria-label="Toggle theme">◐ <span class="label">Theme</span></button>
+        <button class="button" type="button" onclick="window.print()">⌑ <span class="label">Print</span></button>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero" id="top">
+    <div class="hero-inner">
+      <div class="eyebrow">Project Documentation</div>
+      <h1>UpCare MediConnect</h1>
+      <p class="hero-sub">Unified Healthcare, Mental Health &amp; Care-Giving Platform</p>
+      <div class="meta">
+        <span class="pill"><strong>Version</strong> 1.0</span>
+        <span class="pill"><strong>Updated</strong> August 2026</span>
+        <span class="pill">Technology Stack</span>
+        <span class="pill">Core Features</span>
+        <span class="pill">User Manual</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="layout">
+    <aside class="sidebar" aria-label="Documentation navigation">
+      <div class="sidebar-title">Contents</div>
+      <a class="toc-link level-1" href="#1-project-overview">1. Project Overview</a>
+<a class="toc-link level-2" href="#1-1-goals">1.1 Goals</a>
+<a class="toc-link level-2" href="#1-2-service-lines">1.2 Service Lines</a>
+<a class="toc-link level-2" href="#1-3-user-roles">1.3 User Roles</a>
+<a class="toc-link level-1" href="#2-technology-stack">2. Technology Stack</a>
+<a class="toc-link level-2" href="#2-1-frontend">2.1 Frontend</a>
+<a class="toc-link level-2" href="#2-2-backend">2.2 Backend</a>
+<a class="toc-link level-2" href="#2-3-edge-functions">2.3 Edge Functions</a>
+<a class="toc-link level-2" href="#2-4-key-data-model">2.4 Key Data Model</a>
+<a class="toc-link level-2" href="#2-5-security-model">2.5 Security Model</a>
+<a class="toc-link level-1" href="#3-core-features">3. Core Features</a>
+<a class="toc-link level-2" href="#3-1-unified-provider-taxonomy">3.1 Unified Provider Taxonomy</a>
+<a class="toc-link level-2" href="#3-2-unified-3-step-booking">3.2 Unified 3-Step Booking</a>
+<a class="toc-link level-2" href="#3-3-confirmation-timeline">3.3 Confirmation Timeline</a>
+<a class="toc-link level-2" href="#3-4-ai-triage-assistant">3.4 AI Triage Assistant</a>
+<a class="toc-link level-2" href="#3-5-ai-mental-health-screening-aria">3.5 AI Mental Health Screening (Aria)</a>
+<a class="toc-link level-2" href="#3-6-mental-health-toolkit">3.6 Mental Health Toolkit</a>
+<a class="toc-link level-2" href="#3-7-provider-workspace">3.7 Provider Workspace</a>
+<a class="toc-link level-2" href="#3-8-diagnostics-portal">3.8 Diagnostics Portal</a>
+<a class="toc-link level-2" href="#3-9-admin-console">3.9 Admin Console</a>
+<a class="toc-link level-2" href="#3-10-platform-wide">3.10 Platform-Wide</a>
+<a class="toc-link level-1" href="#4-user-manual">4. User Manual</a>
+<a class="toc-link level-2" href="#4-1-getting-started">4.1 Getting Started</a>
+<a class="toc-link level-3" href="#forgot-your-password">Forgot your password</a>
+<a class="toc-link level-2" href="#4-2-patient-guide">4.2 Patient Guide</a>
+<a class="toc-link level-3" href="#finding-care">Finding care</a>
+<a class="toc-link level-3" href="#booking-an-appointment">Booking an appointment</a>
+<a class="toc-link level-3" href="#managing-appointments">Managing appointments</a>
+<a class="toc-link level-3" href="#using-the-ai-triage-assistant">Using the AI Triage Assistant</a>
+<a class="toc-link level-3" href="#using-ai-mental-health-screening">Using AI Mental Health Screening</a>
+<a class="toc-link level-3" href="#other-patient-tools">Other patient tools</a>
+<a class="toc-link level-2" href="#4-3-provider-guide">4.3 Provider Guide</a>
+<a class="toc-link level-3" href="#first-time-setup">First-time setup</a>
+<a class="toc-link level-3" href="#daily-workflow">Daily workflow</a>
+<a class="toc-link level-3" href="#writing-a-prescription">Writing a prescription</a>
+<a class="toc-link level-2" href="#4-4-diagnostic-staff-guide">4.4 Diagnostic Staff Guide</a>
+<a class="toc-link level-2" href="#4-5-admin-guide">4.5 Admin Guide</a>
+<a class="toc-link level-2" href="#4-6-preferences">4.6 Preferences</a>
+<a class="toc-link level-2" href="#4-7-troubleshooting">4.7 Troubleshooting</a>
+<a class="toc-link level-1" href="#5-appendix">5. Appendix</a>
+<a class="toc-link level-2" href="#5-1-key-routes">5.1 Key Routes</a>
+<a class="toc-link level-2" href="#5-2-running-the-project-locally">5.2 Running the Project Locally</a>
+<a class="toc-link level-2" href="#5-3-glossary">5.3 Glossary</a>
+    </aside>
+
+    <main>
+      <details class="mobile-toc">
+        <summary>Table of Contents</summary>
+        <nav><a class="toc-link level-1" href="#1-project-overview">1. Project Overview</a>
+<a class="toc-link level-2" href="#1-1-goals">1.1 Goals</a>
+<a class="toc-link level-2" href="#1-2-service-lines">1.2 Service Lines</a>
+<a class="toc-link level-2" href="#1-3-user-roles">1.3 User Roles</a>
+<a class="toc-link level-1" href="#2-technology-stack">2. Technology Stack</a>
+<a class="toc-link level-2" href="#2-1-frontend">2.1 Frontend</a>
+<a class="toc-link level-2" href="#2-2-backend">2.2 Backend</a>
+<a class="toc-link level-2" href="#2-3-edge-functions">2.3 Edge Functions</a>
+<a class="toc-link level-2" href="#2-4-key-data-model">2.4 Key Data Model</a>
+<a class="toc-link level-2" href="#2-5-security-model">2.5 Security Model</a>
+<a class="toc-link level-1" href="#3-core-features">3. Core Features</a>
+<a class="toc-link level-2" href="#3-1-unified-provider-taxonomy">3.1 Unified Provider Taxonomy</a>
+<a class="toc-link level-2" href="#3-2-unified-3-step-booking">3.2 Unified 3-Step Booking</a>
+<a class="toc-link level-2" href="#3-3-confirmation-timeline">3.3 Confirmation Timeline</a>
+<a class="toc-link level-2" href="#3-4-ai-triage-assistant">3.4 AI Triage Assistant</a>
+<a class="toc-link level-2" href="#3-5-ai-mental-health-screening-aria">3.5 AI Mental Health Screening (Aria)</a>
+<a class="toc-link level-2" href="#3-6-mental-health-toolkit">3.6 Mental Health Toolkit</a>
+<a class="toc-link level-2" href="#3-7-provider-workspace">3.7 Provider Workspace</a>
+<a class="toc-link level-2" href="#3-8-diagnostics-portal">3.8 Diagnostics Portal</a>
+<a class="toc-link level-2" href="#3-9-admin-console">3.9 Admin Console</a>
+<a class="toc-link level-2" href="#3-10-platform-wide">3.10 Platform-Wide</a>
+<a class="toc-link level-1" href="#4-user-manual">4. User Manual</a>
+<a class="toc-link level-2" href="#4-1-getting-started">4.1 Getting Started</a>
+<a class="toc-link level-3" href="#forgot-your-password">Forgot your password</a>
+<a class="toc-link level-2" href="#4-2-patient-guide">4.2 Patient Guide</a>
+<a class="toc-link level-3" href="#finding-care">Finding care</a>
+<a class="toc-link level-3" href="#booking-an-appointment">Booking an appointment</a>
+<a class="toc-link level-3" href="#managing-appointments">Managing appointments</a>
+<a class="toc-link level-3" href="#using-the-ai-triage-assistant">Using the AI Triage Assistant</a>
+<a class="toc-link level-3" href="#using-ai-mental-health-screening">Using AI Mental Health Screening</a>
+<a class="toc-link level-3" href="#other-patient-tools">Other patient tools</a>
+<a class="toc-link level-2" href="#4-3-provider-guide">4.3 Provider Guide</a>
+<a class="toc-link level-3" href="#first-time-setup">First-time setup</a>
+<a class="toc-link level-3" href="#daily-workflow">Daily workflow</a>
+<a class="toc-link level-3" href="#writing-a-prescription">Writing a prescription</a>
+<a class="toc-link level-2" href="#4-4-diagnostic-staff-guide">4.4 Diagnostic Staff Guide</a>
+<a class="toc-link level-2" href="#4-5-admin-guide">4.5 Admin Guide</a>
+<a class="toc-link level-2" href="#4-6-preferences">4.6 Preferences</a>
+<a class="toc-link level-2" href="#4-7-troubleshooting">4.7 Troubleshooting</a>
+<a class="toc-link level-1" href="#5-appendix">5. Appendix</a>
+<a class="toc-link level-2" href="#5-1-key-routes">5.1 Key Routes</a>
+<a class="toc-link level-2" href="#5-2-running-the-project-locally">5.2 Running the Project Locally</a>
+<a class="toc-link level-2" href="#5-3-glossary">5.3 Glossary</a></nav>
+      </details>
+
+      <article>
+        <h2 id="1-project-overview"><a class="anchor" href="#1-project-overview" aria-label="Link to 1. Project Overview">#</a>1. Project Overview</h2><p>UpCare MediConnect is a web-based care marketplace and clinical workspace that connects patients with five categories of care providers through a single account, a single booking flow and a single messaging layer.</p><p>The platform combines three things that are usually separate products: a provider directory and appointment booking engine, a clinical workspace for providers (notes, prescriptions, availability, earnings), and an AI layer for triage and mental-health screening.</p><h3 id="1-1-goals"><a class="anchor" href="#1-1-goals" aria-label="Link to 1.1 Goals">#</a>1.1 Goals</h3><ul class="doc-list"><li>Give patients one place to find a doctor, therapist, caregiver, childcare provider or special-needs specialist.</li><li>Give every provider type the same panel, differentiated by provider type and specialization rather than by separate apps.</li><li>Enforce booking correctness on the server so double-booking and out-of-hours requests are impossible.</li><li>Use AI to help patients describe symptoms and understand their mental health before they ever see a clinician.</li><li>Support multilingual, mobile-first access with light and dark themes.</li></ul><h3 id="1-2-service-lines"><a class="anchor" href="#1-2-service-lines" aria-label="Link to 1.2 Service Lines">#</a>1.2 Service Lines</h3><div class="table-wrap"><table><tr><th>Service</th><th>Route</th><th>Delivered by</th></tr><tr><td>Healthcare &amp; Telehealth</td><td>/services/healthcare-telehealth</td><td>Doctor</td></tr><tr><td>Mental Health &amp; Teletherapy</td><td>/services/mental-health-teletherapy</td><td>Therapist</td></tr><tr><td>Adult &amp; Home Care</td><td>/services/adult-home-care</td><td>Caregiver</td></tr><tr><td>Childcare</td><td>/services/childcare</td><td>Childcare provider</td></tr><tr><td>Special Childcare</td><td>/services/special-childcare</td><td>Special-needs specialist</td></tr><tr><td>Diagnostics</td><td>Diagnostic portal</td><td>Diagnostic staff</td></tr></table></div><h3 id="1-3-user-roles"><a class="anchor" href="#1-3-user-roles" aria-label="Link to 1.3 User Roles">#</a>1.3 User Roles</h3><div class="table-wrap"><table><tr><th>Role</th><th>Who they are</th><th>What they can do</th></tr><tr><td>Patient</td><td>End user / family member</td><td>Search providers, book, chat, view records, use AI triage and screening, pay bills</td></tr><tr><td>Provider (doctor, therapist, caregiver, childcare, special needs)</td><td>Verified care professional</td><td>Manage availability, see clients, write notes and prescriptions, message patients, track earnings</td></tr><tr><td>Diagnostic staff</td><td>Lab / imaging centre operator</td><td>Manage diagnostic services, bookings, results, follow-ups</td></tr><tr><td>Admin</td><td>Platform operator</td><td>Approve and create providers, manage services, view analytics and reports, handle support</td></tr></table></div><h2 id="2-technology-stack"><a class="anchor" href="#2-technology-stack" aria-label="Link to 2. Technology Stack">#</a>2. Technology Stack</h2><h3 id="2-1-frontend"><a class="anchor" href="#2-1-frontend" aria-label="Link to 2.1 Frontend">#</a>2.1 Frontend</h3><div class="table-wrap"><table><tr><th>Layer</th><th>Technology</th><th>Notes</th></tr><tr><td>Framework</td><td>React 18 + TypeScript 5</td><td>Function components and hooks throughout</td></tr><tr><td>Build tool</td><td>Vite 5</td><td>Fast dev server with HMR; production build via vite build</td></tr><tr><td>Routing</td><td>React Router</td><td>Route-level protection via ProtectedRoute</td></tr><tr><td>Styling</td><td>Tailwind CSS 3</td><td>Semantic design tokens defined in src/index.css</td></tr><tr><td>UI kit</td><td>shadcn/ui on Radix UI</td><td>Accessible dialogs, popovers, tabs, selects, toasts</td></tr><tr><td>Icons</td><td>lucide-react</td><td>Consistent line-icon set</td></tr><tr><td>Data layer</td><td>TanStack Query v5</td><td>Caching, refetching and mutations for all backend reads/writes</td></tr><tr><td>Forms</td><td>react-hook-form + zod</td><td>Typed validation on registration, booking and clinical forms</td></tr><tr><td>Dates</td><td>date-fns + react-day-picker</td><td>Calendar selection and slot formatting</td></tr><tr><td>i18n</td><td>i18next / react-i18next</td><td>English, Arabic, Bengali, Hindi with browser language detection</td></tr><tr><td>Theming</td><td>next-themes</td><td>Light and dark mode persisted in localStorage</td></tr><tr><td>Charts</td><td>Recharts</td><td>Analytics and earnings dashboards</td></tr></table></div><h3 id="2-2-backend"><a class="anchor" href="#2-2-backend" aria-label="Link to 2.2 Backend">#</a>2.2 Backend</h3><p>The backend runs on Lovable Cloud (managed Postgres, authentication, storage, realtime and serverless edge functions). The frontend talks to it through a generated, fully typed client.</p><div class="table-wrap"><table><tr><th>Capability</th><th>Implementation</th></tr><tr><td>Database</td><td>PostgreSQL with Row Level Security on every public table</td></tr><tr><td>Authentication</td><td>Email/password plus Google OAuth; password reset and recovery flows</td></tr><tr><td>Authorization</td><td>Separate user_roles table with a security-definer has_role() function used by all RLS policies</td></tr><tr><td>Storage</td><td>Private bucket for medical records and uploaded documents</td></tr><tr><td>Realtime</td><td>Live channels for messaging and notifications, scoped by RLS on realtime.messages</td></tr><tr><td>Serverless</td><td>Deno edge functions for all AI and privileged operations</td></tr><tr><td>AI</td><td>Google Gemini models via the Lovable AI Gateway (no user-supplied API key needed)</td></tr></table></div><h3 id="2-3-edge-functions"><a class="anchor" href="#2-3-edge-functions" aria-label="Link to 2.3 Edge Functions">#</a>2.3 Edge Functions</h3><div class="table-wrap"><table><tr><th>Function</th><th>Purpose</th></tr><tr><td>triage-ai</td><td>Conversational symptom triage and care-level recommendation</td></tr><tr><td>mental-health-conversation</td><td>Aria — adaptive conversational mental-health screener</td></tr><tr><td>mental-health-screening</td><td>Scores and persists screening outcomes</td></tr><tr><td>mental-health-chat</td><td>Supportive chat companion</td></tr><tr><td>journal-analyze</td><td>Sentiment and theme analysis of journal entries</td></tr><tr><td>mood-insights</td><td>Trend insights from mood tracker data</td></tr><tr><td>safety-plan-assistant</td><td>Guided creation of a crisis safety plan</td></tr><tr><td>diagnostic-ai</td><td>Plain-language interpretation of diagnostic results</td></tr><tr><td>export-mental-health-record</td><td>Generates the exportable mental-health record</td></tr><tr><td>admin-create-provider</td><td>Privileged creation of provider accounts by an admin</td></tr></table></div><h3 id="2-4-key-data-model"><a class="anchor" href="#2-4-key-data-model" aria-label="Link to 2.4 Key Data Model">#</a>2.4 Key Data Model</h3><div class="table-wrap"><table><tr><th>Table</th><th>Role</th></tr><tr><td>profiles</td><td>Auto-created profile row linked to each auth user</td></tr><tr><td>user_roles</td><td>Role and provider_type assignment (never stored on profiles)</td></tr><tr><td>appointments</td><td>Bookings with date, time, service, price, visit type, status</td></tr><tr><td>appointment_status_history</td><td>Immutable audit of every status change, drives the patient timeline</td></tr><tr><td>provider_availability</td><td>Weekday and time windows per provider</td></tr><tr><td>patient_providers</td><td>Care relationship linking a patient to a provider</td></tr><tr><td>clinical_notes / prescriptions</td><td>Provider clinical documentation</td></tr><tr><td>conversations / messages</td><td>Realtime chat with strict participant-scoped RLS</td></tr><tr><td>notifications</td><td>Event alerts written by database triggers</td></tr><tr><td>medical_records</td><td>Metadata for documents stored in the private bucket</td></tr><tr><td>diagnostic_bookings / booking_services</td><td>Diagnostic orders and their many-to-many service lines</td></tr></table></div><h3 id="2-5-security-model"><a class="anchor" href="#2-5-security-model" aria-label="Link to 2.5 Security Model">#</a>2.5 Security Model</h3><ul class="doc-list"><li>Row Level Security is enabled on every public table; access is granted explicitly per role.</li><li>Roles live in a dedicated user_roles table and are checked through a security-definer has_role() function, preventing privilege escalation.</li><li>Doctors can only read profiles of patients with an active care relationship.</li><li>Mental-health data is separated: raw AI chats stay private to the patient, only structured clinical output is shareable.</li><li>Access to mental-health records is written to an append-only audit log protected by a restrictive policy.</li><li>Realtime subscriptions are authorized per topic, so users cannot listen to other users&#x27; channels.</li><li>Leaked-password protection (HIBP) is enabled on authentication.</li></ul><h2 id="3-core-features"><a class="anchor" href="#3-core-features" aria-label="Link to 3. Core Features">#</a>3. Core Features</h2><h3 id="3-1-unified-provider-taxonomy"><a class="anchor" href="#3-1-unified-provider-taxonomy" aria-label="Link to 3.1 Unified Provider Taxonomy">#</a>3.1 Unified Provider Taxonomy</h3><p>All care professionals share one provider panel. A single provider_type field distinguishes them, and specialization refines the listing.</p><div class="table-wrap"><table><tr><th>Provider type</th><th>Typical specializations</th></tr><tr><td>Doctor</td><td>Cardiology, paediatrics, dermatology, general medicine and other departments</td></tr><tr><td>Therapist</td><td>Clinical psychology, counselling, CBT, family therapy</td></tr><tr><td>Caregiver</td><td>Adult day care, home nursing support, senior care, post-operative care</td></tr><tr><td>Childcare</td><td>Infant care, after-school care, nanny services</td></tr><tr><td>Special needs</td><td>Autism support, developmental therapy, behavioural support</td></tr></table></div><h3 id="3-2-unified-3-step-booking"><a class="anchor" href="#3-2-unified-3-step-booking" aria-label="Link to 3.2 Unified 3-Step Booking">#</a>3.2 Unified 3-Step Booking</h3><p>Every service uses the same wizard, reached at /book?type=&lt;provider type&gt;. The flow is deliberately fixed at three steps.</p><ol class="doc-list"><li>Choose provider and service — real providers pulled live from the database, with a per-type service catalogue priced in Bangladeshi Taka (৳).</li><li>Pick date and time — calendar plus available slots derived from the provider&#x27;s published availability; in-person or virtual visit.</li><li>Confirm — summary card, optional notes, then confirmation with an automatic redirect to the appointments list.</li></ol><p>Server-side validation, implemented as a database trigger, independently enforces:</p><ul class="doc-list"><li>The requested slot falls inside the provider&#x27;s published availability for that weekday.</li><li>No overlapping appointment exists for the provider.</li><li>No overlapping appointment exists for the patient.</li><li>Cancelled appointments are ignored when checking conflicts.</li></ul><p>Friendly messages such as “This slot was just booked” are shown instead of raw database errors. Because the rules live in the database, they hold even if the client is bypassed.</p><h3 id="3-3-confirmation-timeline"><a class="anchor" href="#3-3-confirmation-timeline" aria-label="Link to 3.3 Confirmation Timeline">#</a>3.3 Confirmation Timeline</h3><p>Every status change is recorded automatically with a timestamp and the acting role. On the appointments page each row expands to a colour-coded vertical timeline showing requested, confirmed, completed or cancelled states, with the latest entry marked Current.</p><h3 id="3-4-ai-triage-assistant"><a class="anchor" href="#3-4-ai-triage-assistant" aria-label="Link to 3.4 AI Triage Assistant">#</a>3.4 AI Triage Assistant</h3><ul class="doc-list"><li>Conversational intake that asks about symptoms, duration and severity.</li><li>Recommends a care level and the most suitable provider type.</li><li>Hands off into the booking wizard with the recommended type preselected.</li></ul><h3 id="3-5-ai-mental-health-screening-aria"><a class="anchor" href="#3-5-ai-mental-health-screening-aria" aria-label="Link to 3.5 AI Mental Health Screening (Aria)">#</a>3.5 AI Mental Health Screening (Aria)</h3><p>Instead of presenting questionnaire cards, Aria holds an adaptive conversation, asks follow-up questions based on the answers given, and then proposes likely areas of concern with a confidence indication and next-step guidance.</p><p>Conditions Aria can surface: depression, generalized anxiety, panic, stress, insomnia, adult ADHD, autism-spectrum traits, bipolar patterns, PTSD, OCD, alcohol or drug misuse, and eating concerns.</p><p>Raw conversations remain private to the patient. Only the structured clinical summary can be shared with a therapist, and every access is audited.</p><h3 id="3-6-mental-health-toolkit"><a class="anchor" href="#3-6-mental-health-toolkit" aria-label="Link to 3.6 Mental Health Toolkit">#</a>3.6 Mental Health Toolkit</h3><ul class="doc-list"><li>Mood tracker with AI-generated trend insights.</li><li>Journal with sentiment and theme analysis.</li><li>CBT companion for guided thought-record exercises.</li><li>Safety plan builder with an always-visible crisis banner.</li><li>Exportable mental-health record (PDF) with consent gating.</li></ul><h3 id="3-7-provider-workspace"><a class="anchor" href="#3-7-provider-workspace" aria-label="Link to 3.7 Provider Workspace">#</a>3.7 Provider Workspace</h3><ul class="doc-list"><li>Availability editor defining weekday time windows that drive bookable slots.</li><li>Client list built from active care relationships.</li><li>Clinical notes tied to patient and appointment.</li><li>Prescriptions with a printable standard Rx template and auto-issued numbers (for example RX-2026-0001).</li><li>Realtime messaging with patients.</li><li>Earnings dashboard and resource library.</li></ul><h3 id="3-8-diagnostics-portal"><a class="anchor" href="#3-8-diagnostics-portal" aria-label="Link to 3.8 Diagnostics Portal">#</a>3.8 Diagnostics Portal</h3><ul class="doc-list"><li>Service catalogue and pricing management.</li><li>Booking queue with many-to-many service lines per booking.</li><li>Result upload plus AI plain-language interpretation.</li><li>Follow-up tracking and booking analytics.</li></ul><h3 id="3-9-admin-console"><a class="anchor" href="#3-9-admin-console" aria-label="Link to 3.9 Admin Console">#</a>3.9 Admin Console</h3><ul class="doc-list"><li>Create provider accounts directly, with type and specialization.</li><li>Approvals and credential verification queues.</li><li>Patient management, service catalogue, appointments oversight.</li><li>Analytics, reports and support inbox.</li></ul><h3 id="3-10-platform-wide"><a class="anchor" href="#3-10-platform-wide" aria-label="Link to 3.10 Platform-Wide">#</a>3.10 Platform-Wide</h3><ul class="doc-list"><li>Four languages: English, Arabic, Bengali and Hindi.</li><li>Light and dark themes persisted per device.</li><li>Realtime notifications generated by database triggers.</li><li>Secure medical-record storage and retrieval.</li><li>Responsive layout with a dedicated mobile bottom navigation.</li><li>Global React error boundary so a single failing view never blanks the app.</li></ul><h2 id="4-user-manual"><a class="anchor" href="#4-user-manual" aria-label="Link to 4. User Manual">#</a>4. User Manual</h2><h3 id="4-1-getting-started"><a class="anchor" href="#4-1-getting-started" aria-label="Link to 4.1 Getting Started">#</a>4.1 Getting Started</h3><ol class="doc-list"><li>Open the platform at <a href="https://upcaremediconnect.rufpaa.org" target="_blank" rel="noopener">https://upcaremediconnect.rufpaa.org</a>.</li><li>Choose Sign Up to create an account, or Log In if you already have one.</li><li>On sign-up, select whether you are a Patient or a Provider.</li><li>Providers additionally choose a provider type (doctor, therapist, caregiver, childcare, special needs) and enter their specialization.</li><li>Confirm your email, then sign in. You can also sign in with Google.</li></ol><p class="callout tip">Tip: if you clicked a Book button before signing in, you are returned to that exact booking page after login rather than to the dashboard.</p><h4 id="forgot-your-password"><a class="anchor" href="#forgot-your-password" aria-label="Link to Forgot your password">#</a>Forgot your password</h4><ol class="doc-list"><li>Click Forgot Password on the login screen.</li><li>Enter your email address and submit.</li><li>Open the reset link from your inbox and choose a new password.</li></ol><h3 id="4-2-patient-guide"><a class="anchor" href="#4-2-patient-guide" aria-label="Link to 4.2 Patient Guide">#</a>4.2 Patient Guide</h3><h4 id="finding-care"><a class="anchor" href="#finding-care" aria-label="Link to Finding care">#</a>Finding care</h4><ol class="doc-list"><li>From the landing page open Services and pick the service you need.</li><li>Browse the provider cards. On the therapist page each card shows an AI match score; open the explanation panel to see the exact factors behind it.</li><li>Click a provider to open their full profile, or click Book to jump straight into the wizard.</li></ol><h4 id="booking-an-appointment"><a class="anchor" href="#booking-an-appointment" aria-label="Link to Booking an appointment">#</a>Booking an appointment</h4><ol class="doc-list"><li>Step 1 — confirm the provider and choose a service; the price and duration are shown.</li><li>Step 2 — pick a date on the calendar, then choose an available time slot and select in-person or virtual.</li><li>Step 3 — review the summary, add any notes for the provider, and confirm.</li></ol><p>If a slot is rejected, either it was taken moments earlier or it falls outside the provider&#x27;s working hours. Choose another slot on the same day or try the next available day.</p><h4 id="managing-appointments"><a class="anchor" href="#managing-appointments" aria-label="Link to Managing appointments">#</a>Managing appointments</h4><ul class="doc-list"><li>Open Appointments from the sidebar to see all upcoming and past visits.</li><li>Click the chevron or Timeline on any row to expand its confirmation timeline.</li><li>Use Reschedule or Cancel on upcoming appointments.</li><li>Virtual visits are joined from the appointment row at the scheduled time.</li></ul><h4 id="using-the-ai-triage-assistant"><a class="anchor" href="#using-the-ai-triage-assistant" aria-label="Link to Using the AI Triage Assistant">#</a>Using the AI Triage Assistant</h4><ol class="doc-list"><li>Open AI Triage from the dashboard or the sidebar.</li><li>Describe your symptoms in your own words and answer the follow-up questions.</li><li>Read the recommendation panel, then use its Book button to continue into the wizard with the right provider type preselected.</li></ol><h4 id="using-ai-mental-health-screening"><a class="anchor" href="#using-ai-mental-health-screening" aria-label="Link to Using AI Mental Health Screening">#</a>Using AI Mental Health Screening</h4><ol class="doc-list"><li>Open Mental Health, then Screening.</li><li>Chat with Aria; answer as openly as you can — the questions adapt to your answers.</li><li>Review the summary of likely areas of concern and the suggested next steps.</li><li>Choose whether to share the structured summary with a therapist. Your raw conversation is never shared automatically.</li></ol><p class="callout warning"><strong>If you are in immediate danger, use the crisis banner shown at the top of every mental-health page.</strong></p><h4 id="other-patient-tools"><a class="anchor" href="#other-patient-tools" aria-label="Link to Other patient tools">#</a>Other patient tools</h4><div class="table-wrap"><table><tr><th>Section</th><th>What you can do</th></tr><tr><td>Records</td><td>Upload and view medical documents held in secure storage</td></tr><tr><td>Messages</td><td>Chat in realtime with any provider you have an active relationship with</td></tr><tr><td>Billing</td><td>Review invoices and payment history</td></tr><tr><td>Providers</td><td>See the care team currently linked to you</td></tr><tr><td>AI Insights</td><td>Personalised health summaries drawn from your activity</td></tr><tr><td>Mood / Journal / CBT / Safety Plan</td><td>Daily mental-health tools with AI feedback</td></tr><tr><td>Support</td><td>Contact the platform team</td></tr></table></div><h3 id="4-3-provider-guide"><a class="anchor" href="#4-3-provider-guide" aria-label="Link to 4.3 Provider Guide">#</a>4.3 Provider Guide</h3><h4 id="first-time-setup"><a class="anchor" href="#first-time-setup" aria-label="Link to First-time setup">#</a>First-time setup</h4><ol class="doc-list"><li>Sign in; you land on the Provider Dashboard. The sidebar shows your provider type, not a generic label.</li><li>Open Availability and set your working weekdays and time windows. Until you do this, patients cannot book you.</li><li>Complete your profile details and specialization so you appear correctly in search.</li></ol><h4 id="daily-workflow"><a class="anchor" href="#daily-workflow" aria-label="Link to Daily workflow">#</a>Daily workflow</h4><ul class="doc-list"><li>Dashboard — today&#x27;s schedule, pending requests and quick actions.</li><li>My Clients — patients with an active care relationship.</li><li>Care Notes — write and review clinical notes per patient or appointment.</li><li>Prescriptions — write a prescription, preview the printable template and print or save it.</li><li>Messages — respond to patient conversations in realtime.</li><li>Earnings — track completed visits and revenue.</li></ul><h4 id="writing-a-prescription"><a class="anchor" href="#writing-a-prescription" aria-label="Link to Writing a prescription">#</a>Writing a prescription</h4><ol class="doc-list"><li>Open Prescriptions, or use the Write Prescription quick action on the dashboard.</li><li>Select the patient from your client list.</li><li>Enter the diagnosis, then add each medication with dose, frequency and duration.</li><li>Add advice or follow-up instructions and save. A prescription number is issued automatically.</li><li>Open the saved prescription to preview the standard Rx template and print it.</li></ol><p>If the patient list is empty, no active care relationship exists yet — it is created when the patient books you.</p><h3 id="4-4-diagnostic-staff-guide"><a class="anchor" href="#4-4-diagnostic-staff-guide" aria-label="Link to 4.4 Diagnostic Staff Guide">#</a>4.4 Diagnostic Staff Guide</h3><ol class="doc-list"><li>Sign in to reach the Diagnostic Dashboard.</li><li>Under Services, maintain the test catalogue and pricing.</li><li>Work the Bookings queue; each booking may contain several service lines.</li><li>Upload results under Results; the AI interpretation gives patients a plain-language explanation.</li><li>Track outstanding actions under Follow-ups and review volume under Analytics.</li></ol><h3 id="4-5-admin-guide"><a class="anchor" href="#4-5-admin-guide" aria-label="Link to 4.5 Admin Guide">#</a>4.5 Admin Guide</h3><ol class="doc-list"><li>Sign in to reach the Admin Dashboard.</li><li>Providers — filter by provider type, review listings, and use Add Provider to create an account directly with type, specialization and initial password.</li><li>Approvals and Verifications — process pending provider applications and credential checks.</li><li>Patients — look up and manage patient accounts.</li><li>Services — maintain the platform-wide service catalogue.</li><li>Appointments — oversee bookings across all providers.</li><li>Analytics and Reports — monitor platform usage and export summaries.</li><li>Support — handle incoming user requests.</li></ol><h3 id="4-6-preferences"><a class="anchor" href="#4-6-preferences" aria-label="Link to 4.6 Preferences">#</a>4.6 Preferences</h3><ul class="doc-list"><li>Language — switch between English, Arabic, Bengali and Hindi from the navigation bar; the choice is remembered.</li><li>Theme — toggle light and dark mode; the choice is stored per device.</li><li>Notifications — realtime alerts appear in the bell panel as bookings and messages arrive.</li></ul><h3 id="4-7-troubleshooting"><a class="anchor" href="#4-7-troubleshooting" aria-label="Link to 4.7 Troubleshooting">#</a>4.7 Troubleshooting</h3><div class="table-wrap"><table><tr><th>Symptom</th><th>Cause</th><th>What to do</th></tr><tr><td>“No availability” when booking</td><td>The provider has not published hours for that weekday, or the slot is outside them</td><td>Pick another day or slot; providers should set hours under Availability</td></tr><tr><td>“This slot was just booked”</td><td>Another patient confirmed the same slot first</td><td>Choose a different time on the same day</td></tr><tr><td>Redirected to the dashboard after login</td><td>Session was created from a plain login link</td><td>Return to the provider page and click Book again</td></tr><tr><td>Provider not visible in a service list</td><td>Missing or mismatched provider type / specialization</td><td>Admin should correct the provider record</td></tr><tr><td>Client list empty for a provider</td><td>No active care relationship yet</td><td>A relationship is created when a patient books that provider</td></tr><tr><td>Cannot see a patient&#x27;s profile as a doctor</td><td>Access is restricted to active care relationships</td><td>Expected behaviour under the security policy</td></tr></table></div><h2 id="5-appendix"><a class="anchor" href="#5-appendix" aria-label="Link to 5. Appendix">#</a>5. Appendix</h2><h3 id="5-1-key-routes"><a class="anchor" href="#5-1-key-routes" aria-label="Link to 5.1 Key Routes">#</a>5.1 Key Routes</h3><div class="table-wrap"><table><tr><th>Route</th><th>Audience</th><th>Purpose</th></tr><tr><td>/</td><td>Public</td><td>Landing page</td></tr><tr><td>/login, /signup</td><td>Public</td><td>Authentication (supports ?redirectTo=)</td></tr><tr><td>/services/*</td><td>Public</td><td>Service landing pages</td></tr><tr><td>/book?type=&lt;type&gt;</td><td>Patient</td><td>Unified 3-step booking wizard</td></tr><tr><td>/appointments</td><td>Patient</td><td>Appointments with confirmation timelines</td></tr><tr><td>/dashboard</td><td>All</td><td>Role-aware dashboard</td></tr><tr><td>/provider/*</td><td>Provider</td><td>Availability, clients, notes, prescriptions, messages, earnings</td></tr><tr><td>/admin/*</td><td>Admin</td><td>Providers, approvals, patients, services, analytics, support</td></tr><tr><td>/mental-health/*</td><td>Patient</td><td>Screening, mood, journal, CBT, safety plan, record</td></tr></table></div><h3 id="5-2-running-the-project-locally"><a class="anchor" href="#5-2-running-the-project-locally" aria-label="Link to 5.2 Running the Project Locally">#</a>5.2 Running the Project Locally</h3><p>Node.js and npm are the only prerequisites.</p><ul class="doc-list"><li>npm i — install dependencies</li><li>npm run dev — start the development server with hot reload</li><li>npm run build — create a production build</li><li>npm run lint — run ESLint</li></ul><h3 id="5-3-glossary"><a class="anchor" href="#5-3-glossary" aria-label="Link to 5.3 Glossary">#</a>5.3 Glossary</h3><div class="table-wrap"><table><tr><th>Term</th><th>Meaning</th></tr><tr><td>Provider type</td><td>The category of care professional: doctor, therapist, caregiver, childcare, special needs</td></tr><tr><td>Care relationship</td><td>The link created between a patient and a provider on booking, which unlocks messaging and clinical records</td></tr><tr><td>RLS</td><td>Row Level Security — database rules that decide which rows each user can read or write</td></tr><tr><td>Edge function</td><td>Serverless function running close to the user, used for AI and privileged operations</td></tr><tr><td>Aria</td><td>The conversational AI mental-health screener</td></tr><tr><td>Visit type</td><td>Whether an appointment is in-person or virtual</td></tr></table></div>
+      </article>
+    </main>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <span>UpCare MediConnect — Project Documentation</span>
+      <span>Version 1.0 · August 2026</span>
+    </div>
+  </footer>
+
+  <script>
+    const root = document.documentElement;
+    const toggle = document.getElementById('themeToggle');
+    const savedTheme = localStorage.getItem('upcare-docs-theme');
+    if (savedTheme) root.dataset.theme = savedTheme;
+
+    toggle.addEventListener('click', () => {
+      const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+      root.dataset.theme = next;
+      localStorage.setItem('upcare-docs-theme', next);
+    });
+
+    const progress = document.getElementById('progress');
+    const updateProgress = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const pct = max > 0 ? (window.scrollY / max) * 100 : 0;
+      progress.style.width = pct + '%';
+    };
+    addEventListener('scroll', updateProgress, {passive:true});
+    updateProgress();
+
+    const sections = [...document.querySelectorAll('article h2[id], article h3[id], article h4[id]')];
+    const links = [...document.querySelectorAll('.sidebar .toc-link')];
+    const linkMap = new Map(links.map(a => [a.getAttribute('href').slice(1), a]));
+
+    const observer = new IntersectionObserver(entries => {
+      const visible = entries
+        .filter(e => e.isIntersecting)
+        .sort((a,b) => a.boundingClientRect.top - b.boundingClientRect.top);
+      if (!visible.length) return;
+      links.forEach(a => a.classList.remove('active'));
+      const id = visible[0].target.id;
+      if (linkMap.has(id)) linkMap.get(id).classList.add('active');
+    }, { rootMargin: '-80px 0px -72% 0px', threshold: 0 });
+
+    sections.forEach(s => observer.observe(s));
+  </script>
+</body>
+</html>
